@@ -75,7 +75,7 @@ func WriteResponse(w http.ResponseWriter, r *http.Request, body interface{}) {
 // defaults are sensible, so this function can be used with no configuration.
 func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	if err == nil {
-		err = errkind.PublicError("no information available", http.StatusInternalServerError)
+		err = errkind.Public("no information available", http.StatusInternalServerError)
 	}
 	config := writeerror.ConfigFromRequest(r)
 
