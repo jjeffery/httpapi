@@ -110,9 +110,9 @@ func ConfigFromRequest(r *http.Request) Config {
 	return config
 }
 
-// Middleware returns middleware that associates the Callback
-// with the HTTP request. Use this in the middleware stack to customise how
-// errors are marshalled and reported.
+// Middleware returns middleware that associates the configuration
+// with the HTTP request context. Use this in the middleware stack to
+// customise how errors are marshalled and reported.
 func Middleware(c Config) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -159,5 +159,4 @@ func defaultMarshalContent(content *Content) []byte {
 }
 
 func defaultErrorWritten(r *http.Request, content *Content) {
-
 }
