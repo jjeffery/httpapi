@@ -7,7 +7,7 @@ Example of a handler that extracts the input from the body of the HTTP request.
 func postHandler(w http.ResponseWriter, r *http.Request) {
     // unmarshal input from request
     var input DoSomethingInput
-    if err := httpapi.ReadRequest(w, r, &payload); err != nil {
+    if err := httpapi.ReadRequest(w, r, &input); err != nil {
         httpapi.WriteError(w, r, err)
         return
     }
@@ -32,7 +32,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
         Offset: query.GetInt("offset"),
     }
 
-    // wait until all query string parameters have been read, then validate
+    // validate once after all query string parameters have been read
     if err := query.Err(); err != nil {
         httpapi.WriteResponse(w, r, err)
         return
@@ -47,3 +47,5 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
     httpapi.WriteResponse(w, r, output)
 }
 ```
+
+[Read the package documentation for more information](https://godoc.org/github.com/jjeffery/httpapi).
