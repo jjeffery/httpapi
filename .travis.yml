@@ -3,6 +3,7 @@ go:
   - 1.7
 
 install:
+  - go get github.com/gorilla/mux
   - go get github.com/jjeffery/errkind
   - go get github.com/jjeffery/errors
   - go get github.com/jjeffery/stringset
