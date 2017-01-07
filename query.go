@@ -3,6 +3,7 @@
 package httpapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -14,13 +15,13 @@ import (
 	"github.com/spkg/local"
 )
 
-// Values provides convenient methods for extracting query parameters.
+// Values provides convenient methods for extracting arguments from the query string.
 type Values struct {
 	values        url.Values
 	invalidParams stringset.Set
 }
 
-// Query returns query values.
+// Query returns values from the query string part of the request URL.
 func Query(r *http.Request) *Values {
 	return &Values{
 		values:        r.URL.Query(),
@@ -35,9 +36,10 @@ func (v *Values) Err() error {
 	if v.invalidParams.Len() == 0 {
 		return nil
 	}
-	err := errkind.BadRequest("invalid query parameter").With(
-		"param", strings.Join(v.invalidParams.Values(), ","),
-	)
+	// We want the client to know which parameters, so we have to format them
+	// in the error message.
+	msg := fmt.Sprintf("invalid value(s) in query string: %s", strings.Join(v.invalidParams.Values(), ","))
+	err := errkind.BadRequest(msg)
 	return err
 }
 

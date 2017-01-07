@@ -10,6 +10,7 @@
 // the ReadRequest function for more details.
 //
 // The WriteError function provides a simple, consistent way to send error messages
-// to HTTP clients. It has some sensible defaults, but these may not suit. The behaviour
-// of the WriteError function can be customized: see the writeerror subdirectory package.
+// to HTTP clients. It has some sensible defaults for the format and handling of JSON
+// error messages, but can be customized. See the writeerror subdirectory package for
+// details.
 package httpapi
