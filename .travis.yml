@@ -1,0 +1,18 @@
+language: go
+go:
+  - 1.7
+  - 1.6
+  - 1.5
+
+install:
+  - go get github.com/jjeffery/errkind
+  - go get github.com/jjeffery/errors
+  - go get github.com/jjeffery/stringset
+  - go get github.com/spkg/local
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+
+script:
+  - go test -v -covermode=count -coverprofile=coverage.out
+  - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/jjeffery/errkind"
+	"github.com/jjeffery/errors"
 	"github.com/jjeffery/httpapi/writeerror"
-	"github.com/pkg/errors"
 )
 
 // ReadRequest reads the request body as JSON, and unmarshals it
