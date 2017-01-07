@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/spkg/local"
 )
 
 func TestQuery(t *testing.T) {
@@ -16,9 +18,10 @@ func TestQuery(t *testing.T) {
 		ints    map[string]int
 		times   map[string]time.Time
 		strings map[string]string
+		dates   map[string]local.Date
 	}{
 		{
-			url: "https://xyris.io/?bool=true&int=12&time=2020-01-02T13:14:15Z&string=string!",
+			url: "https://xyris.io/?bool=true&int=12&time=2020-01-02T13:14:15Z&string=string!&date=2099-12-31",
 			bools: map[string]bool{
 				"bool": true,
 			},
@@ -30,6 +33,9 @@ func TestQuery(t *testing.T) {
 			},
 			times: map[string]time.Time{
 				"time": time.Date(2020, 1, 2, 13, 14, 15, 0, time.UTC),
+			},
+			dates: map[string]local.Date{
+				"date": local.DateFor(2099, 12, 31),
 			},
 		},
 		{
@@ -77,12 +83,46 @@ func TestQuery(t *testing.T) {
 			if got != want {
 				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
 			}
+			got = query.GetBool(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			name = name + "_not_present"
+			want = false
+			got, ok = query.LookupBool(name)
+			if ok {
+				t.Errorf("%d: expected no %q, found %v", i, name, got)
+			}
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetBool(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
 		}
 		for name, want := range tt.ints {
 			got, ok := query.LookupInt(name)
 			if !ok {
 				t.Errorf("%d: expected %q, found none", i, name)
 			}
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetInt(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			name = name + "_not_present"
+			want = 0
+			got, ok = query.LookupInt(name)
+			if ok {
+				t.Errorf("%d: expected no %q, found %v", i, name, got)
+			}
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetInt(name)
 			if got != want {
 				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
 			}
@@ -95,12 +135,72 @@ func TestQuery(t *testing.T) {
 			if !got.Equal(want) {
 				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
 			}
+			got = query.GetTime(name)
+			if !got.Equal(want) {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			name = name + "_not_present"
+			want = time.Time{}
+			got, ok = query.LookupTime(name)
+			if ok {
+				t.Errorf("%d: expected no %q, found %v", i, name, got)
+			}
+			if !got.Equal(want) {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetTime(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+		}
+		for name, want := range tt.dates {
+			got, ok := query.LookupDate(name)
+			if !ok {
+				t.Errorf("%d: expected %q, found none", i, name)
+			}
+			if !got.Equal(want) {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetDate(name)
+			if !got.Equal(want) {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			name = name + "_not_present"
+			want = local.Date{}
+			got, ok = query.LookupDate(name)
+			if ok {
+				t.Errorf("%d: expected no %q, found %v", i, name, got)
+			}
+			if !got.Equal(want) {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetDate(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
 		}
 		for name, want := range tt.strings {
 			got, ok := query.LookupString(name)
 			if !ok {
 				t.Errorf("%d: expected %q, found none", i, name)
 			}
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetString(name)
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			name = name + "_not_present"
+			want = ""
+			got, ok = query.LookupString(name)
+			if ok {
+				t.Errorf("%d: expected no %q, found %v", i, name, got)
+			}
+			if got != want {
+				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
+			}
+			got = query.GetString(name)
 			if got != want {
 				t.Errorf("%d: %q: want %v, got %v", i, name, want, got)
 			}

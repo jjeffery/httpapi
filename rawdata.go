@@ -54,24 +54,24 @@ func (data *rawData) ReadRequest(r *http.Request) error {
 		}
 
 		if v >= int64(maxRequestLen) {
-			return errkind.BadRequest("max length exceeded")
+			return errkind.Public("payload too large", http.StatusRequestEntityTooLarge)
 		}
 
 		buf := make([]byte, v)
 
 		_, err = io.ReadFull(r.Body, buf)
 		if err != nil {
-			return errors.Wrap(err, "cannot read content")
+			return errkind.BadRequest("cannot read full content")
 		}
 		data.Content = buf
 	} else {
 		reader := io.LimitReader(r.Body, int64(maxRequestLen))
 		content, err := ioutil.ReadAll(reader)
 		if err != nil {
-			return err
+			return errkind.BadRequest("cannot read all content")
 		}
 		if len(content) >= maxRequestLen {
-			return errkind.BadRequest("max size exceeded")
+			return errkind.Public("payload too large", http.StatusRequestEntityTooLarge)
 		}
 		data.Content = content
 	}
@@ -189,11 +189,11 @@ func (data *rawData) CompressResponse(r *http.Request) error {
 func (data *rawData) UnmarshalTo(v interface{}) error {
 	err := data.Decompress()
 	if err != nil {
-		return err
+		return errkind.BadRequest("cannot decompress payload")
 	}
 	err = json.Unmarshal(data.Content, v)
 	if err != nil {
-		return err
+		return errkind.BadRequest("invalid JSON payload")
 	}
 	return nil
 }
