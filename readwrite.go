@@ -82,8 +82,19 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	// build the content to send to the client
 	var content writeerror.Content
 	{
-		if errkind.IsPublic(err) {
-			content.Message = errors.Cause(err).Error()
+		cause := errors.Cause(err)
+		if errkind.IsPublic(cause) {
+			// The errkind package has errors that have a Message() method
+			// that returns the message without the code. Useful here because
+			// the code is kept in a separate field in the returned error.
+			// TODO(jpj): this seems a little overcomplicated.
+			if message, ok := cause.(interface {
+				Message() string
+			}); ok {
+				content.Message = message.Message()
+			} else {
+				content.Message = cause.Error()
+			}
 			content.Status = errkind.Status(err)
 			content.Code = errkind.Code(err)
 		} else {
