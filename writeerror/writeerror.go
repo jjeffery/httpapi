@@ -56,8 +56,7 @@ type Config struct {
 
 	// ErrorWrittenCallback specifies an optional callback function that is called whenever
 	// an error has been written to the client. This can be used to log all error
-	// messages sent to the client. The default implementation logs to the standard
-	// logger.
+	// messages sent to the client. The default implementation does nothing.
 	ErrorWritten func(*http.Request, *Content)
 }
 
