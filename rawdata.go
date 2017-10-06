@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -20,6 +21,8 @@ import (
 // maxRequestLen is the max size we are prepared to read from a HTTP client.
 // Anything this size or larger gets discarded.
 var maxRequestLen = 1024 * 1024 * 16
+
+var compressionAllowed bool
 
 // Content encodings
 const (
@@ -35,6 +38,12 @@ type rawData struct {
 	ContentEncoding    string
 	Content            []byte
 	UncompressedLength int
+}
+
+func init() {
+	if s := os.Getenv("NO_COMPRESSION"); s == "" {
+		compressionAllowed = true
+	}
 }
 
 // IsCompressed returns whether the content is compressed.
@@ -148,6 +157,10 @@ func (data *rawData) Decompress() error {
 func (data *rawData) CompressResponse(r *http.Request) error {
 	// additional overhead in compressed response
 	const overhead = 24 // len("Content-Encoding: gzip\r\n")
+
+	if !compressionAllowed {
+		return nil
+	}
 
 	if data.IsCompressed() || len(data.Content) < overhead*4 {
 		// already compressed, or not worth compressing
