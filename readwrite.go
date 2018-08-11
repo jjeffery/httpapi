@@ -95,7 +95,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 			} else {
 				content.Message = cause.Error()
 			}
-			content.Status = errkind.Status(err)
+			content.Status = errkind.StatusCode(err)
 			content.Code = errkind.Code(err)
 		} else {
 			content.Message = "internal server error"

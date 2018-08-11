@@ -97,7 +97,7 @@ func TestReadRequest(t *testing.T) {
 			if tt.wantStatus == 0 {
 				t.Errorf("%d: want no error got %v", i, err)
 			}
-			if status := errkind.Status(err); status != tt.wantStatus {
+			if status := errkind.StatusCode(err); status != tt.wantStatus {
 				t.Errorf("%d: want status=%d, got %d", i, tt.wantStatus, status)
 			}
 			continue
