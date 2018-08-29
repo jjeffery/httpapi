@@ -83,28 +83,36 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	var content writeerror.Content
 	{
 		cause := errors.Cause(err)
-		if errkind.IsPublic(cause) {
+
+		// use the status code if it is public
+		if _, ok := cause.(interface{ PublicStatusCode() }); ok {
+			content.StatusCode = errkind.StatusCode(cause)
+		}
+		if content.StatusCode < 400 || content.StatusCode > 599 {
+			content.StatusCode = http.StatusInternalServerError
+		}
+
+		// use the message if it is public, otherwise use the
+		// message for the status code
+		if _, ok := cause.(interface{ PublicMessage() }); ok {
 			// The errkind package has errors that have a Message() method
 			// that returns the message without the code. Useful here because
 			// the code is kept in a separate field in the returned error.
 			// TODO(jpj): this seems a little overcomplicated.
-			if message, ok := cause.(interface {
-				Message() string
-			}); ok {
-				content.Message = message.Message()
+			if messager, ok := cause.(interface{ Message() string }); ok {
+				content.Message = messager.Message()
 			} else {
 				content.Message = cause.Error()
 			}
-			content.Status = errkind.StatusCode(err)
-			content.Code = errkind.Code(err)
-		} else {
-			content.Message = "internal server error"
-			content.Status = http.StatusInternalServerError
+		}
+		if content.Message == "" {
+			content.Message = http.StatusText(content.StatusCode)
 		}
 
-		if content.Status < 400 || content.Status > 599 {
-			content.Status = http.StatusInternalServerError
+		if _, ok := cause.(interface{ PublicCode() }); ok {
+			content.Code = errkind.Code(cause)
 		}
+
 		content.Trace = config.GetTrace(r)
 
 		if config.IsTrusted(r) {
@@ -120,7 +128,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.WriteHeader(content.Status)
+	w.WriteHeader(content.StatusCode)
 	w.Write(data)
 
 	// Populate the Err property if it has not been populated earlier
