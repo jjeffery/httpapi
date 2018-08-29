@@ -17,11 +17,11 @@ import (
 // Content contains the information sent back to the HTTP client
 // in an error response.
 type Content struct {
-	Message string // Message sent to client, which may be different to err.Error().
-	Status  int    // HTTP status
-	Code    string // Optional Error code
-	Trace   string // Optional unique ID for cross reference with tracing/logging
-	Err     error  // Only sent to trusted clients
+	Message    string // Message sent to client, which may be different to err.Error().
+	StatusCode int    // HTTP status
+	Code       string // Optional Error code
+	Trace      string // Optional unique ID for cross reference with tracing/logging
+	Err        error  // Only sent to trusted clients
 }
 
 // Config contains configuration in the form of callback functions that are
@@ -141,7 +141,7 @@ func defaultMarshalContent(content *Content) []byte {
 		} `json:"error"`
 	}
 	payload.Error.Message = content.Message
-	payload.Error.Status = content.Status
+	payload.Error.Status = content.StatusCode
 	payload.Error.Code = content.Code
 	payload.Error.Trace = content.Trace
 	if content.Err != nil {
